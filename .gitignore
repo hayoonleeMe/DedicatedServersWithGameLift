@@ -5,6 +5,8 @@ RiderLink/
 # exclude Too Large File
 SmokeSwirl_3_Flipbook_CHANNELPACK.uasset
 
+Plugins
+
 # Visual Studio 2015 user specific files
 .vs/
 
