@@ -15,7 +15,7 @@ void AShooterGameMode::BeginPlay()
 
 	// WITH_GAMELIFT : Build Target이 Server이고, GameLift Binaries를 인식할 수 있을 때 true
 #if WITH_GAMELIFT
-	InitGamelift();	
+	InitGameLift();	
 #endif
 }
 
@@ -68,6 +68,15 @@ void AShooterGameMode::InitGameLift()
 	int32 Port = FURL::UrlConfig.DefaultPort;
 	ParseCommandLinePort(Port);
 	ProcessParameters.port = Port;
+
+	// GameSession Log를 저장할 위치 저장
+	TArray<FString> LogFiles;
+	LogFiles.Add(TEXT("FPSTemplate/Saved/Logs/FPSTemplate.log"));
+	ProcessParameters.logParameters = LogFiles;
+
+	//The game server calls ProcessReady() to tell GameLift it's ready to host game sessions.
+	UE_LOG(LogShooterGameMode, Log, TEXT("Calling Process Ready."));
+	GameLiftSdkModule->ProcessReady(ProcessParameters);
 }
 
 void AShooterGameMode::SetServerParameters(FServerParameters& OutServerParameters)
