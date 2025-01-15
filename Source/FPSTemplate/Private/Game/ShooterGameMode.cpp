@@ -62,6 +62,12 @@ void AShooterGameMode::InitGameLift()
     	return true;
     };
     ProcessParameters.OnHealthCheck.BindLambda(OnHealthCheck);
+
+	// 플레이어가 연결할 Port 설정
+	// Command Line Arguments로 넘길 경우 해당 Port를 사용하고, 아니라면 UE의 기본 포트인 7777 사용 
+	int32 Port = FURL::UrlConfig.DefaultPort;
+	ParseCommandLinePort(Port);
+	ProcessParameters.port = Port;
 }
 
 void AShooterGameMode::SetServerParameters(FServerParameters& OutServerParameters)
@@ -94,4 +100,27 @@ void AShooterGameMode::SetServerParameters(FServerParameters& OutServerParameter
 	//The PID of the running process
 	OutServerParameters.m_processId = FString::Printf(TEXT("%d"), GetCurrentProcessId());
 	UE_LOG(LogShooterGameMode, Log, TEXT("PID: %s"), *OutServerParameters.m_processId);
+}
+
+void AShooterGameMode::ParseCommandLinePort(int32& OutPort)
+{
+	// Command Line에서 Token과 switch로 나눈다.
+	TArray<FString> CommandLineTokens;
+	TArray<FString> CommandLineSwitches;
+	FCommandLine::Parse(FCommandLine::Get(), CommandLineTokens, CommandLineSwitches);
+
+	// port=???? 꼴의 Switch를 찾아 OutPort를 해당 Value로 설정한다.
+	for (const FString& Switch : CommandLineSwitches)
+	{
+		FString Key;
+		FString Value;
+		if (Switch.Split("=", &Key, &Value))
+		{
+			if (Key.Equals(TEXT("port"), ESearchCase::IgnoreCase))
+			{
+				OutPort = FCString::Atoi(*Value);
+				return;
+			}
+		}
+	}
 }
