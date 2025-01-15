@@ -53,6 +53,15 @@ void AShooterGameMode::InitGameLift()
     	GameLiftSdkModule->ProcessEnding();
     };
     ProcessParameters.OnTerminate.BindLambda(OnProcessTerminate);
+
+	//GameLift invokes this callback approximately every 60 seconds.
+	// false를 반환하면 서버가 종료된다.
+	auto OnHealthCheck = []() 
+    {
+    	UE_LOG(LogShooterGameMode, Log, TEXT("Performing Health Check"));
+    	return true;
+    };
+    ProcessParameters.OnHealthCheck.BindLambda(OnHealthCheck);
 }
 
 void AShooterGameMode::SetServerParameters(FServerParameters& OutServerParameters)
