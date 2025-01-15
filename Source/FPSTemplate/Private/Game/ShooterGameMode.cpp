@@ -30,28 +30,51 @@ void AShooterGameMode::InitGameLift()
 	// 이때 fleet은 이 서버 프로그램을 가동하는 hosting resources를 나타낸다. AWS EC2 fleet이 될 수도 있고, 직접 서버를 가동하면 개인 하드웨어가 될 수도 있다.
 	FServerParameters ServerParameters;
 
+	SetServerParameters(ServerParameters);
+
+	//InitSDK establishes a local connection with GameLift's agent to enable further communication.
+	//Use InitSDK(serverParameters) for a GameLift Anywhere fleet. 
+	//Use InitSDK() for a GameLift managed EC2 fleet.
+	GameLiftSdkModule->InitSDK(ServerParameters);
+
+	// ProcessParameters.OnStartGameSession : GameLift의 요청에 의해 실제 게임 서버의 준비가 완료될 때
+	auto OnGameSession = [=](Aws::GameLift::Server::Model::GameSession gameSession)
+	{
+		FString GameSessionId = FString(gameSession.GetGameSessionId());
+		UE_LOG(LogShooterGameMode, Log, TEXT("GameSession Initializing: %s"), *GameSessionId);
+		GameLiftSdkModule->ActivateGameSession();
+	};
+	ProcessParameters.OnStartGameSession.BindLambda(OnGameSession);
+}
+
+void AShooterGameMode::SetServerParameters(FServerParameters& OutServerParameters)
+{
 	//AuthToken returned from the "aws gamelift get-compute-auth-token" API. Note this will expire and require a new call to the API after 15 minutes.
 	// 서버를 Command Line으로 돌릴 때, Command Line Argument를 이용해 AuthToken 정보를 저장한다.
-	if (FParse::Value(FCommandLine::Get(), TEXT("-authtoken="), ServerParameters.m_authToken))
+	if (FParse::Value(FCommandLine::Get(), TEXT("-authtoken="), OutServerParameters.m_authToken))
 	{
-		UE_LOG(LogShooterGameMode, Log, TEXT("AUTH_TOKEN: %s"), *ServerParameters.m_authToken)
+		UE_LOG(LogShooterGameMode, Log, TEXT("AUTH_TOKEN: %s"), *OutServerParameters.m_authToken)
 	}
 	
 	//The Host/compute-name of the GameLift Anywhere instance.
-	if (FParse::Value(FCommandLine::Get(), TEXT("-hostid="), ServerParameters.m_hostId))
+	if (FParse::Value(FCommandLine::Get(), TEXT("-hostid="), OutServerParameters.m_hostId))
 	{
-		UE_LOG(LogShooterGameMode, Log, TEXT("HOST_ID: %s"), *ServerParameters.m_hostId)
+		UE_LOG(LogShooterGameMode, Log, TEXT("HOST_ID: %s"), *OutServerParameters.m_hostId)
 	}
 	
 	//The Anywhere Fleet ID.
-	if (FParse::Value(FCommandLine::Get(), TEXT("-fleetid="), ServerParameters.m_fleetId))
+	if (FParse::Value(FCommandLine::Get(), TEXT("-fleetid="), OutServerParameters.m_fleetId))
 	{
-		UE_LOG(LogShooterGameMode, Log, TEXT("FLEET_ID: %s"), *ServerParameters.m_fleetId)
+		UE_LOG(LogShooterGameMode, Log, TEXT("FLEET_ID: %s"), *OutServerParameters.m_fleetId)
 	}
 	
 	//The WebSocket URL (GameLiftServiceSdkEndpoint).
-	if (FParse::Value(FCommandLine::Get(), TEXT("-websocketurl="), ServerParameters.m_webSocketUrl))
+	if (FParse::Value(FCommandLine::Get(), TEXT("-websocketurl="), OutServerParameters.m_webSocketUrl))
 	{
-		UE_LOG(LogShooterGameMode, Log, TEXT("WEBSOCKET_URL: %s"), *ServerParameters.m_webSocketUrl)
+		UE_LOG(LogShooterGameMode, Log, TEXT("WEBSOCKET_URL: %s"), *OutServerParameters.m_webSocketUrl)
 	}
+	
+	//The PID of the running process
+	OutServerParameters.m_processId = FString::Printf(TEXT("%d"), GetCurrentProcessId());
+	UE_LOG(LogShooterGameMode, Log, TEXT("PID: %s"), *OutServerParameters.m_processId);
 }

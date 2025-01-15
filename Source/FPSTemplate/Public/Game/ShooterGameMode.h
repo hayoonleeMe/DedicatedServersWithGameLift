@@ -27,4 +27,5 @@ private:
 	FProcessParameters ProcessParameters;
 
 	void InitGameLift();
+	void SetServerParameters(FServerParameters& OutServerParameters);
 };
