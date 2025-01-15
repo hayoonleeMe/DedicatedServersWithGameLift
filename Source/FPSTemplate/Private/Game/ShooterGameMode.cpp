@@ -45,6 +45,14 @@ void AShooterGameMode::InitGameLift()
 		GameLiftSdkModule->ActivateGameSession();
 	};
 	ProcessParameters.OnStartGameSession.BindLambda(OnGameSession);
+
+	// ProcessParameters.OnTerminate : 이 게임 서버의 호스팅 인스턴스가 종료되기 전에 추가 작업을 수행하기 위해 호출된다.
+	auto OnProcessTerminate = [=]()
+    {
+    	UE_LOG(LogShooterGameMode, Log, TEXT("Game Server process is terminating."));
+    	GameLiftSdkModule->ProcessEnding();
+    };
+    ProcessParameters.OnTerminate.BindLambda(OnProcessTerminate);
 }
 
 void AShooterGameMode::SetServerParameters(FServerParameters& OutServerParameters)
