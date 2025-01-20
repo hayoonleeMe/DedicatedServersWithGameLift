@@ -14,6 +14,6 @@ public class DedicatedServers : ModuleRules
 			"GameLiftServerSDK"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "UMG" });
 	}
 }
