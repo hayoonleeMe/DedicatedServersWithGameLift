@@ -1,15 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Game/ShooterGameMode.h"
+#include "DedicatedServers/Public/Game/DS_GameMode.h"
 
-DEFINE_LOG_CATEGORY(LogShooterGameMode);
+DEFINE_LOG_CATEGORY(LogDS_GameMode);
 
-AShooterGameMode::AShooterGameMode()
-{
-}
-
-void AShooterGameMode::BeginPlay()
+void ADS_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -19,9 +15,9 @@ void AShooterGameMode::BeginPlay()
 #endif
 }
 
-void AShooterGameMode::InitGameLift()
+void ADS_GameMode::InitGameLift()
 {
-	UE_LOG(LogShooterGameMode, Log, TEXT("Initializing the GameLift Server"));
+	UE_LOG(LogDS_GameMode, Log, TEXT("Initializing the GameLift Server"));
 
 	//Getting the module first.
 	FGameLiftServerSDKModule* GameLiftSdkModule = &FModuleManager::LoadModuleChecked<FGameLiftServerSDKModule>(FName("GameLiftServerSDK"));
@@ -41,7 +37,7 @@ void AShooterGameMode::InitGameLift()
 	auto OnGameSession = [=](Aws::GameLift::Server::Model::GameSession gameSession)
 	{
 		FString GameSessionId = FString(gameSession.GetGameSessionId());
-		UE_LOG(LogShooterGameMode, Log, TEXT("GameSession Initializing: %s"), *GameSessionId);
+		UE_LOG(LogDS_GameMode, Log, TEXT("GameSession Initializing: %s"), *GameSessionId);
 		GameLiftSdkModule->ActivateGameSession();
 	};
 	ProcessParameters.OnStartGameSession.BindLambda(OnGameSession);
@@ -49,7 +45,7 @@ void AShooterGameMode::InitGameLift()
 	// ProcessParameters.OnTerminate : 이 게임 서버의 호스팅 인스턴스가 종료되기 전에 추가 작업을 수행하기 위해 호출된다.
 	auto OnProcessTerminate = [=]()
     {
-    	UE_LOG(LogShooterGameMode, Log, TEXT("Game Server process is terminating."));
+    	UE_LOG(LogDS_GameMode, Log, TEXT("Game Server process is terminating."));
     	GameLiftSdkModule->ProcessEnding();
     };
     ProcessParameters.OnTerminate.BindLambda(OnProcessTerminate);
@@ -58,7 +54,7 @@ void AShooterGameMode::InitGameLift()
 	// false를 반환하면 서버가 종료된다.
 	auto OnHealthCheck = []() 
     {
-    	UE_LOG(LogShooterGameMode, Log, TEXT("Performing Health Check"));
+    	UE_LOG(LogDS_GameMode, Log, TEXT("Performing Health Check"));
     	return true;
     };
     ProcessParameters.OnHealthCheck.BindLambda(OnHealthCheck);
@@ -75,43 +71,43 @@ void AShooterGameMode::InitGameLift()
 	ProcessParameters.logParameters = LogFiles;
 
 	//The game server calls ProcessReady() to tell GameLift it's ready to host game sessions.
-	UE_LOG(LogShooterGameMode, Log, TEXT("Calling Process Ready."));
+	UE_LOG(LogDS_GameMode, Log, TEXT("Calling Process Ready."));
 	GameLiftSdkModule->ProcessReady(ProcessParameters);
 }
 
-void AShooterGameMode::SetServerParameters(FServerParameters& OutServerParameters)
+void ADS_GameMode::SetServerParameters(FServerParameters& OutServerParameters)
 {
 	//AuthToken returned from the "aws gamelift get-compute-auth-token" API. Note this will expire and require a new call to the API after 15 minutes.
 	// 서버를 Command Line으로 돌릴 때, Command Line Argument를 이용해 AuthToken 정보를 저장한다.
 	if (FParse::Value(FCommandLine::Get(), TEXT("-authtoken="), OutServerParameters.m_authToken))
 	{
-		UE_LOG(LogShooterGameMode, Log, TEXT("AUTH_TOKEN: %s"), *OutServerParameters.m_authToken)
+		UE_LOG(LogDS_GameMode, Log, TEXT("AUTH_TOKEN: %s"), *OutServerParameters.m_authToken)
 	}
 	
 	//The Host/compute-name of the GameLift Anywhere instance.
 	if (FParse::Value(FCommandLine::Get(), TEXT("-hostid="), OutServerParameters.m_hostId))
 	{
-		UE_LOG(LogShooterGameMode, Log, TEXT("HOST_ID: %s"), *OutServerParameters.m_hostId)
+		UE_LOG(LogDS_GameMode, Log, TEXT("HOST_ID: %s"), *OutServerParameters.m_hostId)
 	}
 	
 	//The Anywhere Fleet ID.
 	if (FParse::Value(FCommandLine::Get(), TEXT("-fleetid="), OutServerParameters.m_fleetId))
 	{
-		UE_LOG(LogShooterGameMode, Log, TEXT("FLEET_ID: %s"), *OutServerParameters.m_fleetId)
+		UE_LOG(LogDS_GameMode, Log, TEXT("FLEET_ID: %s"), *OutServerParameters.m_fleetId)
 	}
 	
 	//The WebSocket URL (GameLiftServiceSdkEndpoint).
 	if (FParse::Value(FCommandLine::Get(), TEXT("-websocketurl="), OutServerParameters.m_webSocketUrl))
 	{
-		UE_LOG(LogShooterGameMode, Log, TEXT("WEBSOCKET_URL: %s"), *OutServerParameters.m_webSocketUrl)
+		UE_LOG(LogDS_GameMode, Log, TEXT("WEBSOCKET_URL: %s"), *OutServerParameters.m_webSocketUrl)
 	}
 	
 	//The PID of the running process
 	OutServerParameters.m_processId = FString::Printf(TEXT("%d"), GetCurrentProcessId());
-	UE_LOG(LogShooterGameMode, Log, TEXT("PID: %s"), *OutServerParameters.m_processId);
+	UE_LOG(LogDS_GameMode, Log, TEXT("PID: %s"), *OutServerParameters.m_processId);
 }
 
-void AShooterGameMode::ParseCommandLinePort(int32& OutPort)
+void ADS_GameMode::ParseCommandLinePort(int32& OutPort)
 {
 	// Command Line에서 Token과 switch로 나눈다.
 	TArray<FString> CommandLineTokens;
