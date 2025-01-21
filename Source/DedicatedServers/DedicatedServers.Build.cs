@@ -11,7 +11,8 @@ public class DedicatedServers : ModuleRules
 			"Core", 
 			"CoreUObject",
 			"Engine",
-			"GameLiftServerSDK"
+			"GameLiftServerSDK",
+			"GameplayTags"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "UMG" });
