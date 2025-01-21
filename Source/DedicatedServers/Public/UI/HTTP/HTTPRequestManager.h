@@ -7,6 +7,7 @@
 #include "HTTPRequestManager.generated.h"
 
 class UAPIData;
+
 /**
  * 
  */
@@ -18,4 +19,7 @@ class DEDICATEDSERVERS_API UHTTPRequestManager : public UObject
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAPIData> APIData;
+
+	static bool ContainsErrors(const TSharedPtr<FJsonObject>& JsonObject);
+	static void DumpMetaData(const TSharedPtr<FJsonObject>& JsonObject);
 };

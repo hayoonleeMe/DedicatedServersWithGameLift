@@ -15,5 +15,26 @@ void UAPITestOverlay::NativeConstruct()
 	APITestManager = NewObject<UAPITestManager>(this, APITestManagerClass);
 
 	check(ListFleetsBox && ListFleetsBox->Button_ListFleets);
-	ListFleetsBox->Button_ListFleets->OnClicked.AddDynamic(APITestManager, &UAPITestManager::ListFleetsButtonClicked);
+	ListFleetsBox->Button_ListFleets->OnClicked.AddDynamic(this, &UAPITestOverlay::ListFleetsButtonClicked);
+}
+
+void UAPITestOverlay::ListFleetsButtonClicked()
+{
+	check(APITestManager);
+	APITestManager->OnListFleetsResponseReceived.AddDynamic(this, &UAPITestOverlay::OnListFleetsResponseReceived);
+	APITestManager->ListFleets();
+	ListFleetsBox->Button_ListFleets->SetIsEnabled(false);
+}
+
+void UAPITestOverlay::OnListFleetsResponseReceived(const FDSListFleetsResponse& ListFleetsResponse, bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		
+	}
+	else
+	{
+		
+	}
+	ListFleetsBox->Button_ListFleets->SetIsEnabled(true);
 }
