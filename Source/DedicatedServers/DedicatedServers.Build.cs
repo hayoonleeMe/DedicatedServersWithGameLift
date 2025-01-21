@@ -16,6 +16,13 @@ public class DedicatedServers : ModuleRules
 			"HTTP"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "UMG" });
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"Slate",
+			"SlateCore",
+			"UMG",
+			"Json",
+			"JsonUtilities"
+		});
 	}
 }
