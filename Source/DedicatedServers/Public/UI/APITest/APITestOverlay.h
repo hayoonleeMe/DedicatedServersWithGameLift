@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "APITestOverlay.generated.h"
 
+class UFleetId;
 class UAPITestManager;
 class UListFleetsBox;
 
@@ -22,6 +23,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UAPITestManager> APITestManagerClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UFleetId> FleetIdWidgetClass;
 
 private:
 	UPROPERTY(meta=(BindWidget))

@@ -4,8 +4,12 @@
 #include "UI/APITest/APITestOverlay.h"
 
 #include "Components/Button.h"
+#include "Components/ScrollBox.h"
+#include "Components/TextBlock.h"
+#include "UI/API/ListFleets/FleetId.h"
 #include "UI/API/ListFleets/ListFleetsBox.h"
 #include "UI/APITest/APITestManager.h"
+#include "UI/HTTP/HTTPRequestTypes.h"
 
 void UAPITestOverlay::NativeConstruct()
 {
@@ -28,13 +32,29 @@ void UAPITestOverlay::ListFleetsButtonClicked()
 
 void UAPITestOverlay::OnListFleetsResponseReceived(const FDSListFleetsResponse& ListFleetsResponse, bool bWasSuccessful)
 {
+	if (APITestManager->OnListFleetsResponseReceived.IsAlreadyBound(this, &UAPITestOverlay::OnListFleetsResponseReceived))
+	{
+		APITestManager->OnListFleetsResponseReceived.RemoveDynamic(this, &UAPITestOverlay::OnListFleetsResponseReceived);
+	}
+	
+	check(FleetIdWidgetClass);
+	
+	ListFleetsBox->ScrollBox_ListFleets->ClearChildren();
 	if (bWasSuccessful)
 	{
-		
+		for (const FString& FleetId : ListFleetsResponse.FleetIds)
+		{
+			UFleetId* FleetIdWidget = CreateWidget<UFleetId>(this, FleetIdWidgetClass);
+			FleetIdWidget->TextBlock_FleetId->SetText(FText::FromString(FleetId));
+			ListFleetsBox->ScrollBox_ListFleets->AddChild(FleetIdWidget);
+		}
 	}
 	else
 	{
-		
+		UFleetId* FleetIdWidget = CreateWidget<UFleetId>(this, FleetIdWidgetClass);
+		FleetIdWidget->TextBlock_FleetId->SetText(FText::FromString(TEXT("Something went wrong!")));
+		ListFleetsBox->ScrollBox_ListFleets->AddChild(FleetIdWidget);
 	}
+	
 	ListFleetsBox->Button_ListFleets->SetIsEnabled(true);
 }
