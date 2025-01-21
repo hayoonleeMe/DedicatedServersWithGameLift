@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interfaces/IHttpRequest.h"
 #include "UI/HTTP/HTTPRequestManager.h"
 #include "APITestManager.generated.h"
 
@@ -17,4 +18,6 @@ class DEDICATEDSERVERS_API UAPITestManager : public UHTTPRequestManager
 public:
 	UFUNCTION()
 	void ListFleetsButtonClicked();
+
+	void ListFleets_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };
