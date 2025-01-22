@@ -2,3 +2,8 @@
 
 
 #include "UI/Portal/PortalManager.h"
+
+void UPortalManager::JoinGameSession()
+{
+	BroadcastJoinGameSessionMessage.Broadcast(TEXT("Searching for Game Session..."));
+}
