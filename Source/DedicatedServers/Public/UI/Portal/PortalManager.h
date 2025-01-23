@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interfaces/IHttpRequest.h"
 #include "UI/HTTP/HTTPRequestManager.h"
 #include "PortalManager.generated.h"
 
@@ -20,4 +21,7 @@ public:
 	FBroadcastJoinGameSessionMessage BroadcastJoinGameSessionMessage;
 	
 	void JoinGameSession();
+
+private:
+	void FindOrCreateGameSession_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };
