@@ -2,6 +2,11 @@
 
 #include "HTTPRequestTypes.generated.h"
 
+namespace HTTPStatusMessage
+{
+	extern DEDICATEDSERVERS_API const FString SomethingWentWrong;
+}
+
 USTRUCT()
 struct FDSMetaData
 {

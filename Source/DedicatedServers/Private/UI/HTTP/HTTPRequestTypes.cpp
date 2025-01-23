@@ -2,6 +2,11 @@
 
 #include "DedicatedServers/DedicatedServers.h"
 
+namespace HTTPStatusMessage
+{
+	const FString SomethingWentWrong(TEXT("Something went wrong!"));
+}
+
 void FDSMetaData::Dump() const
 {
 	UE_LOG(LogDedicatedServers, Log, TEXT("MetaData:"));

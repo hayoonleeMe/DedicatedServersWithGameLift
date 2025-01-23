@@ -7,7 +7,7 @@
 #include "UI/HTTP/HTTPRequestManager.h"
 #include "PortalManager.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBroadcastJoinGameSessionMessage, const FString&, StatusMessage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBroadcastJoinGameSessionMessage, const FString&, StatusMessage, bool, bResetJoinGameButton);
 
 /**
  * 
