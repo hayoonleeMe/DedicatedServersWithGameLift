@@ -8,6 +8,7 @@
 #include "Data/API/APIData.h"
 #include "GameFramework/PlayerState.h"
 #include "Interfaces/IHttpResponse.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/HTTP/HTTPRequestTypes.h"
 
 void UPortalManager::JoinGameSession()
@@ -123,5 +124,16 @@ void UPortalManager::CreatePlayerSession_Response(FHttpRequestPtr Request, FHttp
 		FDSPlayerSession PlayerSession;
 		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &PlayerSession);
 		PlayerSession.Dump();
-	}	
+
+		APlayerController* OwningPlayerController = GEngine->GetFirstLocalPlayerController(GetWorld());
+		if (IsValid(OwningPlayerController))
+		{
+			OwningPlayerController->SetInputMode(FInputModeGameOnly());
+			OwningPlayerController->SetShowMouseCursor(false);
+		}
+
+		const FString IpAndPort = PlayerSession.IpAddress + TEXT(":") + FString::FromInt(PlayerSession.Port);
+		const FName Address(*IpAndPort);
+		UGameplayStatics::OpenLevel(this, Address);
+	}
 }
