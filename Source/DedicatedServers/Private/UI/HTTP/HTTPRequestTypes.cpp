@@ -32,7 +32,7 @@ void FDSListFleetsResponse::Dump() const
 void FDSGameSession::Dump() const
 {
 	UE_LOG(LogDedicatedServers, Log, TEXT("GameSession:"));
-	UE_LOG(LogDedicatedServers, Log, TEXT("  CreationTime: %f"), CreationTime);
+	UE_LOG(LogDedicatedServers, Log, TEXT("  CreationTime: %s"), *CreationTime);
 	UE_LOG(LogDedicatedServers, Log, TEXT("  CreatorId: %s"), *CreatorId);
 	UE_LOG(LogDedicatedServers, Log, TEXT("  CurrentPlayerSessionCount: %d"), CurrentPlayerSessionCount);
 	UE_LOG(LogDedicatedServers, Log, TEXT("  DnsName: %s"), *DnsName);
@@ -56,13 +56,13 @@ void FDSGameSession::Dump() const
 	UE_LOG(LogDedicatedServers, Log, TEXT("  Port: %d"), Port);
 	UE_LOG(LogDedicatedServers, Log, TEXT("  Status: %s"), *Status);
 	UE_LOG(LogDedicatedServers, Log, TEXT("  StatusReason: %s"), *StatusReason);
-	UE_LOG(LogDedicatedServers, Log, TEXT("  TerminationTime: %f"), TerminationTime);
+	UE_LOG(LogDedicatedServers, Log, TEXT("  TerminationTime: %s"), *TerminationTime);
 }
 
 void FDSPlayerSession::Dump() const
 {
 	UE_LOG(LogDedicatedServers, Log, TEXT("PlayerSession:"));
-	UE_LOG(LogDedicatedServers, Log, TEXT("  CreationTime: %f"), CreationTime);
+	UE_LOG(LogDedicatedServers, Log, TEXT("  CreationTime: %s"), *CreationTime);
 	UE_LOG(LogDedicatedServers, Log, TEXT("  DnsName: %s"), *DnsName);
 	UE_LOG(LogDedicatedServers, Log, TEXT("  FleetArn: %s"), *FleetArn);
 	UE_LOG(LogDedicatedServers, Log, TEXT("  FleetId: %s"), *FleetId);
@@ -73,5 +73,5 @@ void FDSPlayerSession::Dump() const
 	UE_LOG(LogDedicatedServers, Log, TEXT("  PlayerSessionId: %s"), *PlayerSessionId);
 	UE_LOG(LogDedicatedServers, Log, TEXT("  Port: %d"), Port);
 	UE_LOG(LogDedicatedServers, Log, TEXT("  Status: %s"), *Status);
-	UE_LOG(LogDedicatedServers, Log, TEXT("  TerminationTime: %f"), TerminationTime);
+	UE_LOG(LogDedicatedServers, Log, TEXT("  TerminationTime: %s"), *TerminationTime);
 }
