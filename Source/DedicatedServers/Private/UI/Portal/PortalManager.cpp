@@ -6,6 +6,7 @@
 #include "HttpModule.h"
 #include "JsonObjectConverter.h"
 #include "Data/API/APIData.h"
+#include "GameFramework/PlayerState.h"
 #include "Interfaces/IHttpResponse.h"
 #include "UI/HTTP/HTTPRequestTypes.h"
 
@@ -38,12 +39,51 @@ void UPortalManager::FindOrCreateGameSession_Response(FHttpRequestPtr Request, F
 		{
 			BroadcastJoinGameSessionMessage.Broadcast(HTTPStatusMessage::SomethingWentWrong, true);
 		}
-		DumpMetaData(JsonObject);
 
 		FDSGameSession GameSession;
 		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &GameSession);
-		GameSession.Dump();
-		
-		BroadcastJoinGameSessionMessage.Broadcast(TEXT("Found Game Session."), false);
+
+		const FString GameSessionId = GameSession.GameSessionId;
+		const FString GameSessionStatus = GameSession.Status;
+		HandleGameSessionStatus(GameSessionId, GameSessionStatus);
 	}
+}
+
+FString UPortalManager::GetUniquePlayerId() const
+{
+	const APlayerController* LocalPlayerController = GEngine->GetFirstLocalPlayerController(GetWorld());
+	if (IsValid(LocalPlayerController))
+	{
+		const APlayerState* LocalPlayerState = LocalPlayerController->GetPlayerState<APlayerState>();
+		if (IsValid(LocalPlayerState) && LocalPlayerState->GetUniqueId().IsValid())
+		{
+			return TEXT("Player_") + FString::FromInt(LocalPlayerState->GetUniqueID());
+		}
+	}
+	return FString();
+}
+
+void UPortalManager::HandleGameSessionStatus(const FString& GameSessionId, const FString& GameSessionStatus)
+{
+	if (GameSessionStatus.Equals(TEXT("ACTIVE")))
+	{
+		BroadcastJoinGameSessionMessage.Broadcast(TEXT("Found active Game Session. Create a Player Session..."), false);
+		TryCreatePlayerSession(GetUniquePlayerId(), GameSessionId);
+	}
+	else if (GameSessionStatus.Equals(TEXT("ACTIVATING")))
+	{
+		if (GetWorld())
+		{
+			GetWorld()->GetTimerManager().SetTimer(CreateSessionTimerHandle, FTimerDelegate::CreateUObject(this, &UPortalManager::JoinGameSession), 0.5f, false);
+		}
+	}
+	else
+	{
+		BroadcastJoinGameSessionMessage.Broadcast(HTTPStatusMessage::SomethingWentWrong, true);
+	}
+}
+
+void UPortalManager::TryCreatePlayerSession(const FString& PlayerId, const FString& GameSessionId)
+{
+	
 }

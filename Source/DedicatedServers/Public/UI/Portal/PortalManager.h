@@ -24,4 +24,9 @@ public:
 
 private:
 	void FindOrCreateGameSession_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	FString GetUniquePlayerId() const;
+	void HandleGameSessionStatus(const FString& GameSessionId, const FString& GameSessionStatus);
+	void TryCreatePlayerSession(const FString& PlayerId, const FString& GameSessionId);
+
+	FTimerHandle CreateSessionTimerHandle;
 };
