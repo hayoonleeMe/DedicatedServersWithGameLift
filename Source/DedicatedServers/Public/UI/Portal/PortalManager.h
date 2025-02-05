@@ -3,11 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Interfaces/IHttpRequest.h"
 #include "UI/HTTP/HTTPRequestManager.h"
 #include "PortalManager.generated.h"
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBroadcastJoinGameSessionMessage, const FString&, StatusMessage, bool, bResetJoinGameButton);
 
 /**
  * 
@@ -18,23 +15,10 @@ class DEDICATEDSERVERS_API UPortalManager : public UHTTPRequestManager
 	GENERATED_BODY()
 
 public:
-	FBroadcastJoinGameSessionMessage BroadcastJoinGameSessionMessage;
-	
-	void JoinGameSession();
-	
 	void SignIn(const FString& UserName, const FString& Password);
 	void SignUp(const FString& UserName, const FString& Password, const FString& Email);
 	void Confirm(const FString& ConfirmationCode);
 
 	UFUNCTION()
 	void QuitGame();
-
-private:
-	void FindOrCreateGameSession_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-	void CreatePlayerSession_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-	FString GetUniquePlayerId() const;
-	void HandleGameSessionStatus(const FString& GameSessionId, const FString& GameSessionStatus);
-	void TryCreatePlayerSession(const FString& PlayerId, const FString& GameSessionId);
-
-	FTimerHandle CreateSessionTimerHandle;
 };

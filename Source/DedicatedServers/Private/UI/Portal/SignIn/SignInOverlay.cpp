@@ -6,7 +6,6 @@
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "Components/WidgetSwitcher.h"
-#include "UI/API/GameSessions/JoinGame.h"
 #include "UI/Portal/PortalManager.h"
 #include "UI/Portal/SignIn/ConfirmSignUpPage.h"
 #include "UI/Portal/SignIn/SignInPage.h"
@@ -18,10 +17,8 @@ void USignInOverlay::NativeConstruct()
 	Super::NativeConstruct();
 
 	check(PortalManagerClass);
-	
 	PortalManager = NewObject<UPortalManager>(this, PortalManagerClass);
-	JoinGameWidget->Button_JoinGame->OnClicked.AddDynamic(this, &USignInOverlay::OnJoinGameButtonClicked);
-
+	
 	Button_SignIn_Test->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignInPage);
 	Button_SignUp_Test->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignUpPage);
 	Button_ConfirmSignUp_Test->OnClicked.AddDynamic(this, &USignInOverlay::ShowConfirmSignUpPage);
@@ -38,27 +35,6 @@ void USignInOverlay::NativeConstruct()
 	ConfirmSignUpPage->Button_Back->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignUpPage);
 
 	SuccessConfirmedPage->Button_Ok->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignInPage);
-}
-
-void USignInOverlay::OnJoinGameButtonClicked()
-{
-	if (PortalManager)
-	{
-		PortalManager->BroadcastJoinGameSessionMessage.AddDynamic(this, &USignInOverlay::UpdateJoinGameStatusMessage);
-		PortalManager->JoinGameSession();
-	}
-
-	JoinGameWidget->Button_JoinGame->SetIsEnabled(false);
-}
-
-void USignInOverlay::UpdateJoinGameStatusMessage(const FString& StatusMessage, bool bResetJoinGameButton)
-{
-	JoinGameWidget->SetStatusMessage(StatusMessage);
-
-	if (bResetJoinGameButton)
-	{
-		JoinGameWidget->Button_JoinGame->SetIsEnabled(true);
-	}
 }
 
 void USignInOverlay::ShowSignInPage()
