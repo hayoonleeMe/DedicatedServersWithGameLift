@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HttpFwd.h"
 #include "UI/HTTP/HTTPRequestManager.h"
 #include "PortalManager.generated.h"
 
@@ -21,4 +22,7 @@ public:
 
 	UFUNCTION()
 	void QuitGame();
+
+private:
+	void SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };
