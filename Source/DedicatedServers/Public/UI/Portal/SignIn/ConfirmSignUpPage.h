@@ -30,4 +30,7 @@ public:
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_Destination;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> Button_Back;
 };
