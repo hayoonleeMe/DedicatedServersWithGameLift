@@ -4,6 +4,7 @@
 #include "UI/Portal/SignIn/SignInOverlay.h"
 
 #include "Components/Button.h"
+#include "Components/EditableTextBox.h"
 #include "Components/WidgetSwitcher.h"
 #include "UI/API/GameSessions/JoinGame.h"
 #include "UI/Portal/PortalManager.h"
@@ -17,33 +18,41 @@ void USignInOverlay::NativeConstruct()
 	Super::NativeConstruct();
 
 	check(PortalManagerClass);
-	check(JoinGameWidget && JoinGameWidget->Button_JoinGame);
 	
 	PortalManager = NewObject<UPortalManager>(this, PortalManagerClass);
 	JoinGameWidget->Button_JoinGame->OnClicked.AddDynamic(this, &USignInOverlay::OnJoinGameButtonClicked);
-
-	check(Button_SignIn_Test && Button_SignUp_Test && Button_ConfirmSignUp_Test && Button_SuccessConfirmed_Test);
 
 	Button_SignIn_Test->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignInPage);
 	Button_SignUp_Test->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignUpPage);
 	Button_ConfirmSignUp_Test->OnClicked.AddDynamic(this, &USignInOverlay::ShowConfirmSignUpPage);
 	Button_SuccessConfirmed_Test->OnClicked.AddDynamic(this, &USignInOverlay::ShowSuccessConfirmedPage);
+
+	SignInPage->Button_SignIn->OnClicked.AddDynamic(this, &USignInOverlay::SignInButtonClicked);
+	SignInPage->Button_SignUp->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignUpPage);
+	SignInPage->Button_Quit->OnClicked.AddDynamic(PortalManager, &UPortalManager::QuitGame);
+
+	SignUpPage->Button_Back->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignInPage);
+	SignUpPage->Button_SignUp->OnClicked.AddDynamic(this, &USignInOverlay::SignUpButtonClicked);
+
+	ConfirmSignUpPage->Button_Confirm->OnClicked.AddDynamic(this, &USignInOverlay::ConfirmButtonClicked);
+	ConfirmSignUpPage->Button_Back->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignUpPage);
+
+	SuccessConfirmedPage->Button_Ok->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignInPage);
 }
 
 void USignInOverlay::OnJoinGameButtonClicked()
 {
-	check(IsValid(PortalManager));
-	check(JoinGameWidget && JoinGameWidget->Button_JoinGame);
-	
-	PortalManager->BroadcastJoinGameSessionMessage.AddDynamic(this, &USignInOverlay::UpdateJoinGameStatusMessage);
-	PortalManager->JoinGameSession();
+	if (PortalManager)
+	{
+		PortalManager->BroadcastJoinGameSessionMessage.AddDynamic(this, &USignInOverlay::UpdateJoinGameStatusMessage);
+		PortalManager->JoinGameSession();
+	}
 
 	JoinGameWidget->Button_JoinGame->SetIsEnabled(false);
 }
 
 void USignInOverlay::UpdateJoinGameStatusMessage(const FString& StatusMessage, bool bResetJoinGameButton)
 {
-	check(JoinGameWidget && JoinGameWidget->Button_JoinGame);
 	JoinGameWidget->SetStatusMessage(StatusMessage);
 
 	if (bResetJoinGameButton)
@@ -54,24 +63,50 @@ void USignInOverlay::UpdateJoinGameStatusMessage(const FString& StatusMessage, b
 
 void USignInOverlay::ShowSignInPage()
 {
-	check(WidgetSwitcher && SignInPage);
 	WidgetSwitcher->SetActiveWidget(SignInPage);
 }
 
 void USignInOverlay::ShowSignUpPage()
 {
-	check(WidgetSwitcher && SignUpPage);
 	WidgetSwitcher->SetActiveWidget(SignUpPage);
 }
 
 void USignInOverlay::ShowConfirmSignUpPage()
 {
-	check(WidgetSwitcher && ConfirmSignUpPage);
 	WidgetSwitcher->SetActiveWidget(ConfirmSignUpPage);
 }
 
 void USignInOverlay::ShowSuccessConfirmedPage()
 {
-	check(WidgetSwitcher && SuccessConfirmedPage);
 	WidgetSwitcher->SetActiveWidget(SuccessConfirmedPage);
+}
+
+void USignInOverlay::SignInButtonClicked()
+{
+	const FString UserName = SignInPage->TextBox_UserName->GetText().ToString();
+	const FString Password = SignInPage->TextBox_Password->GetText().ToString();
+	if (PortalManager)
+	{
+		PortalManager->SignIn(UserName, Password);
+	}
+}
+
+void USignInOverlay::SignUpButtonClicked()
+{
+	const FString UserName = SignUpPage->TextBox_UserName->GetText().ToString();
+	const FString Password = SignUpPage->TextBox_Password->GetText().ToString();
+	const FString Email = SignUpPage->TextBox_Email->GetText().ToString();
+	if (PortalManager)
+	{
+		PortalManager->SignUp(UserName, Password, Email);
+	}
+}
+
+void USignInOverlay::ConfirmButtonClicked()
+{
+	const FString ConfirmationCode = ConfirmSignUpPage->TextBox_ConfirmationCode->GetText().ToString();
+	if (PortalManager)
+	{
+		PortalManager->Confirm(ConfirmationCode);
+	}
 }
