@@ -7,6 +7,15 @@
 #include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
 
+void USignUpPage::UpdateStatusMessage(const FString& Message, bool bShouldResetWidget)
+{
+	TextBlock_StatusMessage->SetText(FText::FromString(Message));
+	if (bShouldResetWidget)
+	{
+		Button_SignUp->SetIsEnabled(true);
+	}
+}
+
 void USignUpPage::NativeConstruct()
 {
 	Super::NativeConstruct();

@@ -40,6 +40,9 @@ public:
 	UPROPERTY(meta=(BindWidget))
     TObjectPtr<UTextBlock> TextBlock_StatusMessage;
 
+	UFUNCTION()
+	void UpdateStatusMessage(const FString& Message, bool bShouldResetWidget);
+
 protected:
 	virtual void NativeConstruct() override;
 

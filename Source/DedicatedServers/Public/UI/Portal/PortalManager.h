@@ -16,6 +16,8 @@ class DEDICATEDSERVERS_API UPortalManager : public UHTTPRequestManager
 	GENERATED_BODY()
 
 public:
+	FAPIStatusMessage SignUpStatusMessageDelegate;
+	
 	void SignIn(const FString& UserName, const FString& Password);
 	void SignUp(const FString& UserName, const FString& Password, const FString& Email);
 	void Confirm(const FString& ConfirmationCode);
