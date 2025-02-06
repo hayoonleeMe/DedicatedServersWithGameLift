@@ -5,6 +5,7 @@
 
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
+#include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
 #include "UI/Portal/PortalManager.h"
 #include "UI/Portal/SignIn/ConfirmSignUpPage.h"
@@ -31,9 +32,12 @@ void USignInOverlay::NativeConstruct()
 	SignUpPage->Button_Back->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignInPage);
 	SignUpPage->Button_SignUp->OnClicked.AddDynamic(this, &USignInOverlay::SignUpButtonClicked);
 	PortalManager->SignUpStatusMessageDelegate.AddDynamic(SignUpPage, &USignUpPage::UpdateStatusMessage);
+	PortalManager->OnSignUpSucceeded.AddDynamic(this, &USignInOverlay::OnSignUpSucceeded);
 
 	ConfirmSignUpPage->Button_Confirm->OnClicked.AddDynamic(this, &USignInOverlay::ConfirmButtonClicked);
 	ConfirmSignUpPage->Button_Back->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignUpPage);
+	PortalManager->ConfirmSignUpStatusMessageDelegate.AddDynamic(ConfirmSignUpPage, &UConfirmSignUpPage::UpdateStatusMessage);
+	PortalManager->OnConfirmSignUpSucceeded.AddDynamic(this, &USignInOverlay::OnConfirmSignUpSucceeded);
 
 	SuccessConfirmedPage->Button_Ok->OnClicked.AddDynamic(this, &USignInOverlay::ShowSignInPage);
 }
@@ -81,9 +85,23 @@ void USignInOverlay::SignUpButtonClicked()
 
 void USignInOverlay::ConfirmButtonClicked()
 {
+	ConfirmSignUpPage->Button_Confirm->SetIsEnabled(false);
 	const FString ConfirmationCode = ConfirmSignUpPage->TextBox_ConfirmationCode->GetText().ToString();
 	if (PortalManager)
 	{
 		PortalManager->Confirm(ConfirmationCode);
 	}
+}
+
+void USignInOverlay::OnSignUpSucceeded()
+{
+	SignUpPage->ClearTextBoxes();
+	ConfirmSignUpPage->TextBlock_Destination->SetText(FText::FromString(PortalManager->LastSignUpResponse.CodeDeliveryDetails.Destination));
+	ShowConfirmSignUpPage();
+}
+
+void USignInOverlay::OnConfirmSignUpSucceeded()
+{
+	ConfirmSignUpPage->ClearTextBoxes();
+	ShowSuccessConfirmedPage();
 }

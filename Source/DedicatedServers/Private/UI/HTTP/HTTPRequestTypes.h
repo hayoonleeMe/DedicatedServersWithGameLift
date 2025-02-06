@@ -151,7 +151,7 @@ struct FDSPlayerSession
 };
 
 USTRUCT()
-struct FCodeDeliveryDetails
+struct FDSCodeDeliveryDetails
 {
 	GENERATED_BODY()
 	
@@ -173,7 +173,7 @@ struct FDSSignUpResponse
 	GENERATED_BODY()
 	
 	UPROPERTY()
-	FCodeDeliveryDetails CodeDeliveryDetails;
+	FDSCodeDeliveryDetails CodeDeliveryDetails;
 	
 	UPROPERTY()
 	bool UserConfirmed;

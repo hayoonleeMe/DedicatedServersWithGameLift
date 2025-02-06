@@ -9,7 +9,6 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "UI/HTTP/HTTPRequestTypes.h"
 
 void UPortalManager::SignIn(const FString& UserName, const FString& Password)
 {
@@ -18,6 +17,8 @@ void UPortalManager::SignIn(const FString& UserName, const FString& Password)
 void UPortalManager::SignUp(const FString& UserName, const FString& Password, const FString& Email)
 {
 	SignUpStatusMessageDelegate.Broadcast(TEXT("Creating a new account..."), false);
+
+	LastUsername = UserName;
 	
 	check(APIData);
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
@@ -39,19 +40,6 @@ void UPortalManager::SignUp(const FString& UserName, const FString& Password, co
 	Request->ProcessRequest();	
 }
 
-void UPortalManager::Confirm(const FString& ConfirmationCode)
-{
-	
-}
-
-void UPortalManager::QuitGame()
-{
-	if (GetWorld() && GetWorld()->GetFirstPlayerController())
-	{
-		UKismetSystemLibrary::QuitGame(this, GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit, false);
-	}
-}
-
 void UPortalManager::SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 	if (!bWasSuccessful)
@@ -66,10 +54,70 @@ void UPortalManager::SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr R
 		if (ContainsErrors(JsonObject))
 		{
 			SignUpStatusMessageDelegate.Broadcast(HTTPStatusMessage::SomethingWentWrong, true);
+			return;
 		}
 
-		FDSSignUpResponse SignUpResponse;
-		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &SignUpResponse);
-		SignUpResponse.Dump();
+		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &LastSignUpResponse);
+		OnSignUpSucceeded.Broadcast();
+	}
+}
+
+void UPortalManager::Confirm(const FString& ConfirmationCode)
+{
+	ConfirmSignUpStatusMessageDelegate.Broadcast(TEXT("Checking verification code..."), false);
+	
+	check(APIData);
+	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &UPortalManager::Confirm_Response);
+	const FString APIUrl = APIData->GetAPIEndpoint(DedicatedServersTags::PortalAPI::ConfirmSignUp);
+	Request->SetURL(APIUrl);
+	Request->SetVerb(TEXT("PUT"));
+	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+
+	const TMap<FString, FString> Params =
+	{
+		{ TEXT("username"), LastUsername },
+		{ TEXT("confirmationCode"), ConfirmationCode }
+	};
+	const FString Content = SerializeJsonContent(Params);
+	
+	Request->SetContentAsString(Content);
+	Request->ProcessRequest();	
+}
+
+void UPortalManager::Confirm_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (!bWasSuccessful)
+	{
+		ConfirmSignUpStatusMessageDelegate.Broadcast(HTTPStatusMessage::SomethingWentWrong, true);
+	}
+
+	TSharedPtr<FJsonObject> JsonObject;
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
+	{
+		if (ContainsErrors(JsonObject))
+		{
+			if (JsonObject->HasField(TEXT("name")))
+			{
+				const FString Exception = JsonObject->GetStringField(TEXT("name"));
+				if (Exception.Equals(TEXT("CodeMismatchException")))
+				{
+					ConfirmSignUpStatusMessageDelegate.Broadcast(TEXT("Incorrect verification code"), true);
+					return;
+				}
+			}
+			ConfirmSignUpStatusMessageDelegate.Broadcast(HTTPStatusMessage::SomethingWentWrong, true);
+			return;
+		}
+	}
+	OnConfirmSignUpSucceeded.Broadcast();
+}
+
+void UPortalManager::QuitGame()
+{
+	if (GetWorld() && GetWorld()->GetFirstPlayerController())
+	{
+		UKismetSystemLibrary::QuitGame(this, GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit, false);
 	}
 }

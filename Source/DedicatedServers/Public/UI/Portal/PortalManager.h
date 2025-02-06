@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "HttpFwd.h"
 #include "UI/HTTP/HTTPRequestManager.h"
+#include "UI/HTTP/HTTPRequestTypes.h"
 #include "PortalManager.generated.h"
 
 /**
@@ -17,6 +18,10 @@ class DEDICATEDSERVERS_API UPortalManager : public UHTTPRequestManager
 
 public:
 	FAPIStatusMessage SignUpStatusMessageDelegate;
+	FAPIStatusMessage ConfirmSignUpStatusMessageDelegate;
+	
+	FOnAPIRequestSucceeded OnSignUpSucceeded;
+	FOnAPIRequestSucceeded OnConfirmSignUpSucceeded;
 	
 	void SignIn(const FString& UserName, const FString& Password);
 	void SignUp(const FString& UserName, const FString& Password, const FString& Email);
@@ -25,6 +30,10 @@ public:
 	UFUNCTION()
 	void QuitGame();
 
+	FDSSignUpResponse LastSignUpResponse;
+	FString LastUsername;
+
 private:
 	void SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	void Confirm_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };

@@ -81,4 +81,10 @@ private:
 
 	UFUNCTION()
 	void ConfirmButtonClicked();
+
+	UFUNCTION()
+	void OnSignUpSucceeded();
+
+	UFUNCTION()
+	void OnConfirmSignUpSucceeded();
 };

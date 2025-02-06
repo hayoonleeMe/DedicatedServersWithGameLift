@@ -43,6 +43,8 @@ public:
 	UFUNCTION()
 	void UpdateStatusMessage(const FString& Message, bool bShouldResetWidget);
 
+	void ClearTextBoxes();
+
 protected:
 	virtual void NativeConstruct() override;
 

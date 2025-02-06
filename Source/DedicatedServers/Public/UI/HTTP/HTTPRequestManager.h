@@ -9,6 +9,7 @@
 class UAPIData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FAPIStatusMessage, const FString&, StatusMessage, bool, bShouldResetWidget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAPIRequestSucceeded);
 
 /**
  * 

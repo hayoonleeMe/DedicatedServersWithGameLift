@@ -33,4 +33,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Back;
+
+	UFUNCTION()
+	void UpdateStatusMessage(const FString& Message, bool bShouldResetWidget);
+	
+	void ClearTextBoxes();
 };
