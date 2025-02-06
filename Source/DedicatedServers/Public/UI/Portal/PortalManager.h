@@ -19,6 +19,7 @@ class DEDICATEDSERVERS_API UPortalManager : public UHTTPRequestManager
 public:
 	FAPIStatusMessage SignUpStatusMessageDelegate;
 	FAPIStatusMessage ConfirmSignUpStatusMessageDelegate;
+	FAPIStatusMessage SignInStatusMessageDelegate;
 	
 	FOnAPIRequestSucceeded OnSignUpSucceeded;
 	FOnAPIRequestSucceeded OnConfirmSignUpSucceeded;
@@ -34,6 +35,7 @@ public:
 	FString LastUsername;
 
 private:
+	void SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	void SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	void Confirm_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };
