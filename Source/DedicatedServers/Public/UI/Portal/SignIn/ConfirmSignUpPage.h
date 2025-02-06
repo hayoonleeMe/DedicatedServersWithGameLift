@@ -38,4 +38,11 @@ public:
 	void UpdateStatusMessage(const FString& Message, bool bShouldResetWidget);
 	
 	void ClearTextBoxes();
+
+protected:
+	virtual void NativeConstruct() override;
+
+private:
+	UFUNCTION()
+	void UpdateConfirmButtonState(const FText& Text);
 };
