@@ -9,6 +9,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Player/DSLocalPlayerSubsystem.h"
 
 void UPortalManager::SignIn(const FString& UserName, const FString& Password)
 {
@@ -52,6 +53,11 @@ void UPortalManager::SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr R
 
 		FDSInitiateAuthResponse InitiateAuthResponse;
 		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &InitiateAuthResponse);
+
+		if (UDSLocalPlayerSubsystem* LocalPlayerSubsystem = GetDSLocalPlayerSubsystem())
+		{
+			LocalPlayerSubsystem->InitializeTokens(InitiateAuthResponse.AuthenticationResult, this);
+		}
 	}
 }
 

@@ -6,6 +6,13 @@
 #include "HTTPRequestTypes.h"
 #include "JsonObjectConverter.h"
 #include "DedicatedServers/DedicatedServers.h"
+#include "Player/DSLocalPlayerSubsystem.h"
+
+UDSLocalPlayerSubsystem* UHTTPRequestManager::GetDSLocalPlayerSubsystem() const
+{
+	const ULocalPlayer* LocalPlayer = GetWorld() ? GetWorld()->GetFirstLocalPlayerFromController() : nullptr;
+	return LocalPlayer ? LocalPlayer->GetSubsystem<UDSLocalPlayerSubsystem>() : nullptr;
+}
 
 bool UHTTPRequestManager::ContainsErrors(const TSharedPtr<FJsonObject>& JsonObject)
 {
