@@ -27,6 +27,7 @@ public:
 	void SignIn(const FString& UserName, const FString& Password);
 	void SignUp(const FString& UserName, const FString& Password, const FString& Email);
 	void Confirm(const FString& ConfirmationCode);
+	void RefreshTokens(const FString& RefreshToken);
 
 	UFUNCTION()
 	void QuitGame();
@@ -38,4 +39,5 @@ private:
 	void SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	void SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 	void Confirm_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	void RefreshTokens_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };
