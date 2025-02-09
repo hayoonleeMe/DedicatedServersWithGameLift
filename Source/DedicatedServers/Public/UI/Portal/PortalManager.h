@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "HttpFwd.h"
+#include "Interfaces/PortalManagement.h"
 #include "UI/HTTP/HTTPRequestManager.h"
 #include "UI/HTTP/HTTPRequestTypes.h"
 #include "PortalManager.generated.h"
@@ -12,7 +13,7 @@
  * 
  */
 UCLASS()
-class DEDICATEDSERVERS_API UPortalManager : public UHTTPRequestManager
+class DEDICATEDSERVERS_API UPortalManager : public UHTTPRequestManager, public IPortalManagement
 {
 	GENERATED_BODY()
 
@@ -27,7 +28,9 @@ public:
 	void SignIn(const FString& UserName, const FString& Password);
 	void SignUp(const FString& UserName, const FString& Password, const FString& Email);
 	void Confirm(const FString& ConfirmationCode);
-	void RefreshTokens(const FString& RefreshToken);
+
+	/* IPortalManagement */
+	virtual void RefreshTokens(const FString& RefreshToken) override;
 
 	UFUNCTION()
 	void QuitGame();

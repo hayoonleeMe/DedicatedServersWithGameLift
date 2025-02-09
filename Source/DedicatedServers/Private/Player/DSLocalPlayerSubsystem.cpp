@@ -3,12 +3,12 @@
 
 #include "Player/DSLocalPlayerSubsystem.h"
 
-#include "UI/Portal/PortalManager.h"
+#include "UI/Portal/Interfaces/PortalManagement.h"
 
-void UDSLocalPlayerSubsystem::InitializeTokens(const FDSAuthenticationResult& AuthResult, UPortalManager* Manager)
+void UDSLocalPlayerSubsystem::InitializeTokens(const FDSAuthenticationResult& AuthResult, TScriptInterface<IPortalManagement> PortalManagement)
 {
 	AuthenticationResult = AuthResult;
-	PortalManager = Manager;
+	PortalManagementInterface = PortalManagement;
 	SetRefreshTokenTimer();
 }
 
@@ -18,9 +18,10 @@ void UDSLocalPlayerSubsystem::SetRefreshTokenTimer()
 	{
 		GetWorld()->GetTimerManager().SetTimer(RefreshTimer, FTimerDelegate::CreateLambda([this]()
 		{
-			if (PortalManager)
+			// LocalPlayerSubsystem에서 PortalManager가 유효하지 않을 수 있으므로 IsValid로 체크
+			if (IsValid(PortalManagementInterface.GetObject()))
 			{
-				PortalManager->RefreshTokens(AuthenticationResult.RefreshToken);
+				PortalManagementInterface->RefreshTokens(AuthenticationResult.RefreshToken);
 			}
 		}), TokenRefreshInterval, false);
 	}
