@@ -10,6 +10,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Player/DSLocalPlayerSubsystem.h"
+#include "UI/Portal/PortalHUD.h"
 
 void UPortalManager::SignIn(const FString& UserName, const FString& Password)
 {
@@ -57,6 +58,14 @@ void UPortalManager::SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr R
 		if (UDSLocalPlayerSubsystem* LocalPlayerSubsystem = GetDSLocalPlayerSubsystem())
 		{
 			LocalPlayerSubsystem->InitializeTokens(InitiateAuthResponse.AuthenticationResult, this);
+		}
+
+		if (GetWorld() && GetWorld()->GetFirstPlayerController())
+		{
+			if (APortalHUD* PortalHUD = Cast<APortalHUD>(GetWorld()->GetFirstPlayerController()->GetHUD()))
+			{
+				PortalHUD->OnSignIn();
+			}
 		}
 	}
 }
