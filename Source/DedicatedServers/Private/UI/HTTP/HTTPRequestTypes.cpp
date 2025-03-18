@@ -126,4 +126,5 @@ void FDSInitiateAuthResponse::Dump() const
 	UE_LOG(LogDedicatedServers, Log, TEXT("ChallengeName: %s"), *ChallengeName);
 	ChallengeParameters.Dump();
 	UE_LOG(LogDedicatedServers, Log, TEXT("Session: %s"), *Session);
+	UE_LOG(LogDedicatedServers, Log, TEXT("Email: %s"), *Email);
 }

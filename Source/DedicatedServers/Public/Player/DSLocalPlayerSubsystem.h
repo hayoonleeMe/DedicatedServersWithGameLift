@@ -22,6 +22,9 @@ public:
 	void SetRefreshTokenTimer();
 	void UpdateTokens(const FString& AccessToken, const FString& IdToken);
 	FDSAuthenticationResult GetAuthResult() const { return AuthenticationResult; }
+
+	FString Username;
+	FString Email;
 	
 private:
 	UPROPERTY()

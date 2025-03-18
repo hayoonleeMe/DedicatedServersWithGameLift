@@ -24,6 +24,7 @@ void UPortalManager::SignIn(const FString& UserName, const FString& Password)
 	Request->SetVerb(TEXT("POST"));
 	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
 
+	LastUsername = UserName;
 	const TMap<FString, FString> Params =
 	{
 		{ TEXT("username"), UserName },
@@ -58,6 +59,8 @@ void UPortalManager::SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr R
 		if (UDSLocalPlayerSubsystem* LocalPlayerSubsystem = GetDSLocalPlayerSubsystem())
 		{
 			LocalPlayerSubsystem->InitializeTokens(InitiateAuthResponse.AuthenticationResult, this);
+			LocalPlayerSubsystem->Username = LastUsername;
+			LocalPlayerSubsystem->Email = InitiateAuthResponse.Email;
 		}
 
 		if (GetWorld() && GetWorld()->GetFirstPlayerController())

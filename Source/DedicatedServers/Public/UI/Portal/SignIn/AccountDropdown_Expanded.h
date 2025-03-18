@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "AccountDropdown_Expanded.generated.h"
 
+class UDSLocalPlayerSubsystem;
 class UPortalManager;
 class UTextBlock;
 class UButton;
@@ -24,6 +25,9 @@ public:
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_SignOutButtonText;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_Email;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSlateColor HoveredTextColor;
@@ -52,4 +56,6 @@ private:
 	TSubclassOf<UPortalManager> PortalManagerClass;
 
 	void SetSignOutButtonStyleTransparent();
+
+	UDSLocalPlayerSubsystem* GetLocalPlayerSubsystem() const;
 };
