@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
+#include "Player/DSPlayerController.h"
 #include "ShooterPlayerController.generated.h"
 
 struct FInputActionValue;
@@ -16,7 +16,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerStateReplicated);
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API AShooterPlayerController : public APlayerController
+class FPSTEMPLATE_API AShooterPlayerController : public ADSPlayerController
 {
 	GENERATED_BODY()
 public:
