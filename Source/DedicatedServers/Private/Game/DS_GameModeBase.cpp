@@ -28,7 +28,7 @@ void ADS_GameModeBase::StartCountdownTimer(FCountdownTimerHandle& CountdownTimer
 		}
 	});
 	
-	GetWorldTimerManager().SetTimer(CountdownTimerHandle.TimerUpdateHandle, CountdownTimerHandle.TimerUpdateDelegate, CountdownTimerHandle.CountdownUpdateInterval, true);
+	GetWorldTimerManager().SetTimer(CountdownTimerHandle.TimerUpdateHandle, CountdownTimerHandle.TimerUpdateDelegate, CountdownTimerHandle.CountdownUpdateInterval, true, 0.f);
 }
 
 void ADS_GameModeBase::StopCountdownTimer(FCountdownTimerHandle& CountdownTimerHandle)

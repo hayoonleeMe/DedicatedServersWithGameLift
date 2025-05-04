@@ -21,6 +21,16 @@ enum class ECountdownTimerType : uint8
 	None UMETA(DisplayName = "None"),
 };
 
+UENUM()
+enum class EMatchStatus : uint8
+{
+	WaitingForPlayers,
+	Match,
+	PreMatch,
+	PostMatch,
+	SeamlessTravelling
+};
+
 USTRUCT(BlueprintType)
 struct FCountdownTimerHandle
 {
