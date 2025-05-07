@@ -3,15 +3,84 @@
 
 #include "Game/DS_LobbyGameMode.h"
 
-#include "GameLiftServerSDKModels.h"
 #include "DedicatedServers/DedicatedServers.h"
 #include "Game/DS_GameInstanceSubsystem.h"
+#include "Kismet/GameplayStatics.h"
+
+ADS_LobbyGameMode::ADS_LobbyGameMode()
+{
+	bUseSeamlessTravel = true;
+	LobbyStatus = ELobbyStatus::WaitingForPlayers;
+	MinPlayers = 1;
+	LobbyCountdownTimer.Type = ECountdownTimerType::LobbyCountdown;
+}
+
+/* PostLogin only called when hard travel. not called when seamless travel. */
+void ADS_LobbyGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+	
+	CheckAndStartLobbyCountdown();
+}
+
+/* InitSeamlessTravelPlayer called when player seamless travel to this level */
+void ADS_LobbyGameMode::InitSeamlessTravelPlayer(AController* NewController)
+{
+	Super::InitSeamlessTravelPlayer(NewController);
+	
+	CheckAndStartLobbyCountdown();
+}
+
+void ADS_LobbyGameMode::CheckAndStartLobbyCountdown()
+{
+	if (GetNumPlayers() >= MinPlayers && LobbyStatus == ELobbyStatus::WaitingForPlayers)
+	{
+		LobbyStatus = ELobbyStatus::CountdownToSeamlessTravel;
+		StartCountdownTimer(LobbyCountdownTimer);
+	}
+}
+
+void ADS_LobbyGameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+	
+	CheckAndStopLobbyCountdown();
+}
+
+void ADS_LobbyGameMode::CheckAndStopLobbyCountdown()
+{
+	if (GetNumPlayers() - 1 < MinPlayers && LobbyStatus == ELobbyStatus::CountdownToSeamlessTravel)
+	{
+		LobbyStatus = ELobbyStatus::WaitingForPlayers;
+		StopCountdownTimer(LobbyCountdownTimer);
+	}
+}
 
 void ADS_LobbyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
 	InitGameLift();
+}
+
+void ADS_LobbyGameMode::OnCountdownTimerFinished(ECountdownTimerType Type)
+{
+	Super::OnCountdownTimerFinished(Type);
+
+	if (Type == ECountdownTimerType::LobbyCountdown)
+	{
+		LobbyStatus = ELobbyStatus::SeamlessTravelling;
+		
+		if (GIsEditor)
+		{
+			UGameplayStatics::OpenLevelBySoftObjectPtr(this, DestinationMap);
+		}
+		else
+		{
+			const FString MapName = DestinationMap.ToSoftObjectPath().GetAssetName();
+			GetWorld()->ServerTravel(MapName);
+		}
+	}
 }
 
 void ADS_LobbyGameMode::InitGameLift()
