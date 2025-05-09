@@ -25,7 +25,7 @@ protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	ECountdownTimerType TimerType;
 
 	UPROPERTY()
@@ -50,6 +50,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Timer Updated"))
 	void K2_OnTimerUpdated(float Time, ECountdownTimerType Type);
+	
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Timer Started"))
+	void K2_OnTimerStarted(float Time, ECountdownTimerType Type);
 	
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Timer Stopped"))
 	void K2_OnTimerStopped(float Time, ECountdownTimerType Type);
