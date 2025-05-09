@@ -3,6 +3,7 @@
 
 #include "Game/DS_GameModeBase.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "Player/DSPlayerController.h"
 
 void ADS_GameModeBase::StartCountdownTimer(FCountdownTimerHandle& CountdownTimerHandle)
@@ -57,4 +58,17 @@ void ADS_GameModeBase::StopCountdownTimer(FCountdownTimerHandle& CountdownTimerH
 
 void ADS_GameModeBase::OnCountdownTimerFinished(ECountdownTimerType Type)
 {
+}
+
+void ADS_GameModeBase::TrySeamlessTravel(const TSoftObjectPtr<UWorld>& DestinationMap)
+{
+	if (GIsEditor)
+	{
+		UGameplayStatics::OpenLevelBySoftObjectPtr(this, DestinationMap);
+	}
+	else
+	{
+		const FString MapName = DestinationMap.ToSoftObjectPath().GetAssetName();
+		GetWorld()->ServerTravel(MapName);
+	}
 }

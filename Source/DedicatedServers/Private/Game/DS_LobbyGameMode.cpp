@@ -5,7 +5,6 @@
 
 #include "DedicatedServers/DedicatedServers.h"
 #include "Game/DS_GameInstanceSubsystem.h"
-#include "Kismet/GameplayStatics.h"
 
 ADS_LobbyGameMode::ADS_LobbyGameMode()
 {
@@ -70,16 +69,7 @@ void ADS_LobbyGameMode::OnCountdownTimerFinished(ECountdownTimerType Type)
 	if (Type == ECountdownTimerType::LobbyCountdown)
 	{
 		LobbyStatus = ELobbyStatus::SeamlessTravelling;
-		
-		if (GIsEditor)
-		{
-			UGameplayStatics::OpenLevelBySoftObjectPtr(this, DestinationMap);
-		}
-		else
-		{
-			const FString MapName = DestinationMap.ToSoftObjectPath().GetAssetName();
-			GetWorld()->ServerTravel(MapName);
-		}
+		TrySeamlessTravel(DestinationMap);
 	}
 }
 
