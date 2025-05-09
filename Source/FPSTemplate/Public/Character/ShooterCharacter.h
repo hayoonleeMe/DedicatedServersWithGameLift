@@ -70,6 +70,7 @@ public:
 	virtual void Initiate_Jump_Implementation() override;
 	virtual bool IsDeadOrDying_Implementation() override;
 	virtual void WeaponReplicated_Implementation() override;
+	virtual void EnableGameActions_Implementation(bool bEnable) override;
 	/** <end> PlayerInterface */
 
 	UFUNCTION(BlueprintCallable)
@@ -145,5 +146,7 @@ private:
 	TObjectPtr<UInputAction> AimAction;
 	
 	FTimerHandle InitiializeWidgets_Timer;
+
+	bool bEnableGameActions;
 };
 

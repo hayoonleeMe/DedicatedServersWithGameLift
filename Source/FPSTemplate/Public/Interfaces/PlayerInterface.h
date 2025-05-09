@@ -87,4 +87,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void WeaponReplicated();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void EnableGameActions(bool bEnable);
 };

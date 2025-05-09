@@ -24,6 +24,8 @@ public:
 	bool bPawnAlive;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnRep_PlayerState() override;
+	virtual void EnableInput(APlayerController* PlayerController) override;
+	virtual void DisableInput(APlayerController* PlayerController) override;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerStateReplicated OnPlayerStateReplicated;

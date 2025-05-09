@@ -59,6 +59,8 @@ AShooterCharacter::AShooterCharacter()
 	DefaultFieldOfView = 90.f;
 	TurningStatus = ETurningInPlace::NotTurning;
 	bWeaponFirstReplicated = false;
+
+	bEnableGameActions = true;
 }
 
 void AShooterCharacter::OnDeathStarted(AActor* DyingActor, AActor* DeathInstigator)
@@ -335,6 +337,10 @@ bool AShooterCharacter::IsLocalFirstPerson() const
 
 void AShooterCharacter::Input_CycleWeapon()
 {
+	if (!bEnableGameActions)
+	{
+		return;
+	}
 	Combat->Initiate_CycleWeapon();
 }
 
@@ -350,27 +356,47 @@ void AShooterCharacter::Notify_ReloadWeapon_Implementation()
 
 void AShooterCharacter::Input_FireWeapon_Pressed()
 {
+	if (!bEnableGameActions)
+	{
+		return;
+	}
 	Combat->Initiate_FireWeapon_Pressed();
 }
 
 void AShooterCharacter::Input_FireWeapon_Released()
 {
+	if (!bEnableGameActions)
+	{
+		return;
+	}
 	Combat->Initiate_FireWeapon_Released();
 }
 
 void AShooterCharacter::Input_ReloadWeapon()
 {
+	if (!bEnableGameActions)
+	{
+		return;
+	}
 	Combat->Initiate_ReloadWeapon();
 }
 
 void AShooterCharacter::Input_Aim_Pressed()
 {
+	if (!bEnableGameActions)
+	{
+		return;
+	}
 	Combat->Initiate_AimPressed();
 	OnAim(true);
 }
 
 void AShooterCharacter::Input_Aim_Released()
 {
+	if (!bEnableGameActions)
+	{
+		return;
+	}
 	Combat->Initiate_AimReleased();
 	OnAim(false);
 }
@@ -407,6 +433,15 @@ void AShooterCharacter::WeaponReplicated_Implementation()
 	{
 		bWeaponFirstReplicated = true;
 		OnWeaponFirstReplicated.Broadcast(Combat->CurrentWeapon);
+	}
+}
+
+void AShooterCharacter::EnableGameActions_Implementation(bool bEnable)
+{
+	bEnableGameActions = bEnable;
+	if (!bEnable && Combat)
+	{
+		Combat->Initiate_FireWeapon_Released();
 	}
 }
 

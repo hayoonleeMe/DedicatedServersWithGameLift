@@ -26,6 +26,26 @@ void AShooterPlayerController::OnRep_PlayerState()
 	OnPlayerStateReplicated.Broadcast();
 }
 
+void AShooterPlayerController::EnableInput(APlayerController* PlayerController)
+{
+	Super::EnableInput(PlayerController);
+
+	if (IsValid(GetPawn()) && GetPawn()->Implements<UPlayerInterface>())
+	{
+		IPlayerInterface::Execute_EnableGameActions(GetPawn(), true);
+	}
+}
+
+void AShooterPlayerController::DisableInput(APlayerController* PlayerController)
+{
+	Super::DisableInput(PlayerController);
+
+	if (IsValid(GetPawn()) && GetPawn()->Implements<UPlayerInterface>())
+    {
+    	IPlayerInterface::Execute_EnableGameActions(GetPawn(), false);
+    }
+}
+
 void AShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
