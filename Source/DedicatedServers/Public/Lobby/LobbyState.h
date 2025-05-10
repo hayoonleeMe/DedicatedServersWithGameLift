@@ -9,6 +9,18 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerInfoChanged, const FLobbyPlayerInfo&, PlayerInfo);
 
+USTRUCT()
+struct FLobbyPlayerInfoDelta
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<FLobbyPlayerInfo> AddedPlayers;
+
+	UPROPERTY()
+	TArray<FLobbyPlayerInfo> RemovedPlayers;
+};
+
 /**
  * 
  */
@@ -37,4 +49,10 @@ protected:
 private:
 	UPROPERTY(ReplicatedUsing=OnRep_PlayerInfoArray)
 	FLobbyPlayerInfoArray PlayerInfoArray;
+
+	// Replicate 되기 전의 PlayerInfoArray
+	UPROPERTY()
+	FLobbyPlayerInfoArray LastPlayerInfoArray;
+
+	FLobbyPlayerInfoDelta ComputePlayerInfoDelta(const TArray<FLobbyPlayerInfo>& OldArray, const TArray<FLobbyPlayerInfo>& NewArray);
 };
