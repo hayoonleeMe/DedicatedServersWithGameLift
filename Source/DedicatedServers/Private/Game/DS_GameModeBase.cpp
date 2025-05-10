@@ -3,6 +3,7 @@
 
 #include "Game/DS_GameModeBase.h"
 
+#include "aws/gamelift/server/GameLiftServerAPI.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/DSPlayerController.h"
 
@@ -71,4 +72,23 @@ void ADS_GameModeBase::TrySeamlessTravel(const TSoftObjectPtr<UWorld>& Destinati
 		const FString MapName = DestinationMap.ToSoftObjectPath().GetAssetName();
 		GetWorld()->ServerTravel(MapName);
 	}
+}
+
+void ADS_GameModeBase::RemovePlayerSession(AController* Exiting)
+{
+	const ADSPlayerController* DSPlayerController = Cast<ADSPlayerController>(Exiting);
+	if (!IsValid(DSPlayerController))
+	{
+		return;
+	}
+
+#if WITH_GAMELIFT
+
+	const FString& PlayerSessionId = DSPlayerController->PlayerSessionId;
+	if (!PlayerSessionId.IsEmpty())
+	{
+		Aws::GameLift::Server::RemovePlayerSession(TCHAR_TO_ANSI(*PlayerSessionId));
+	}
+	
+#endif
 }

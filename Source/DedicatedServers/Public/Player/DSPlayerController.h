@@ -37,6 +37,12 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnTimerStateChangedDelegate OnTimerStopped;
 
+	UPROPERTY()
+	FString PlayerSessionId;
+	
+	UPROPERTY()
+	FString Username;
+
 protected:
 	virtual void BeginPlay() override;
 	

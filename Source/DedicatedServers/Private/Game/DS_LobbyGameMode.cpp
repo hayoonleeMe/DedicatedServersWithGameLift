@@ -6,6 +6,7 @@
 #include "DedicatedServers/DedicatedServers.h"
 #include "Game/DS_GameInstanceSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/DSPlayerController.h"
 
 ADS_LobbyGameMode::ADS_LobbyGameMode()
 {
@@ -45,6 +46,7 @@ void ADS_LobbyGameMode::Logout(AController* Exiting)
 	Super::Logout(Exiting);
 	
 	CheckAndStopLobbyCountdown();
+	RemovePlayerSession(Exiting);
 }
 
 void ADS_LobbyGameMode::CheckAndStopLobbyCountdown()
@@ -119,6 +121,24 @@ void ADS_LobbyGameMode::TryAcceptPlayerSession(const FString& PlayerSessionId, c
 	}
 		
 #endif
+}
+
+// PreLogin()이 성공적으로 수행되고 플레이어의 NewPlayerController가 생성된 후에 호출된다. 
+FString ADS_LobbyGameMode::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal)
+{
+	FString RetValue = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, Portal);
+
+	const FString PlayerSessionId = UGameplayStatics::ParseOption(Options, TEXT("PlayerSessionId"));
+	const FString Username = UGameplayStatics::ParseOption(Options, TEXT("Username"));
+
+	// 추후 PlayerSession을 제거하기 위해 저장
+	if (ADSPlayerController* DSPlayerController = Cast<ADSPlayerController>(NewPlayerController); IsValid(DSPlayerController))
+	{
+		DSPlayerController->PlayerSessionId = PlayerSessionId;
+		DSPlayerController->Username = Username;
+	}
+		
+	return RetValue;
 }
 
 void ADS_LobbyGameMode::BeginPlay()
