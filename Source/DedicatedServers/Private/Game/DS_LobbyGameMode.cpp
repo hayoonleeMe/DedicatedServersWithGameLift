@@ -62,6 +62,63 @@ void ADS_LobbyGameMode::PreLogin(const FString& Options, const FString& Address,
 
 	const FString PlayerSessionId = UGameplayStatics::ParseOption(Options, TEXT("PlayerSessionId"));
 	const FString Username = UGameplayStatics::ParseOption(Options, TEXT("Username"));
+
+	// ErrorMessage가 설정되면 이 로그인은 실패한다.
+	TryAcceptPlayerSession(PlayerSessionId, Username, ErrorMessage);
+}
+
+void ADS_LobbyGameMode::TryAcceptPlayerSession(const FString& PlayerSessionId, const FString& Username, FString& OutErrorMessage)
+{
+	if (PlayerSessionId.IsEmpty() || Username.IsEmpty())
+	{
+		OutErrorMessage = TEXT("PlayerSessionId and/or Username invalid.");
+		return;
+	}
+	
+#if WITH_GAMELIFT
+	
+	Aws::GameLift::Server::Model::DescribePlayerSessionsRequest DescribePlayerSessionsRequest;
+	DescribePlayerSessionsRequest.SetPlayerSessionId(TCHAR_TO_ANSI(*PlayerSessionId)); // const TCHAR* -> const char* ; char = ANSICHAR
+
+	const auto& DescribePlayerSessionOutcome = Aws::GameLift::Server::DescribePlayerSessions(DescribePlayerSessionsRequest);
+	if (!DescribePlayerSessionOutcome.IsSuccess())
+	{
+		OutErrorMessage = TEXT("DescribePlayerSessions failed.");
+		return;
+	}
+
+	const auto& DescribePlayerSessionsResult = DescribePlayerSessionOutcome.GetResult();
+	int32 Count = 0;
+	const Aws::GameLift::Server::Model::PlayerSession* PlayerSessions = DescribePlayerSessionsResult.GetPlayerSessions(Count);
+	if (PlayerSessions == nullptr || Count == 0)
+	{
+		OutErrorMessage = TEXT("GetPlayerSessions failed.");
+		return;
+	}
+
+	for (int32 i = 0; i < Count; ++i)
+	{
+		const Aws::GameLift::Server::Model::PlayerSession& PlayerSession = PlayerSessions[i];
+		if (!Username.Equals(PlayerSession.GetPlayerId()))
+		{
+			continue;
+		}
+
+		if (PlayerSession.GetStatus() != Aws::GameLift::Server::Model::PlayerSessionStatus::RESERVED)
+		{
+			OutErrorMessage = FString::Printf(TEXT("Session for %s not RESERVED; fail PreLogin."), *Username);
+			return;
+		}
+
+		const auto& AcceptPlayerSessionOutcome = Aws::GameLift::Server::AcceptPlayerSession(TCHAR_TO_ANSI(*PlayerSessionId));
+		if (!AcceptPlayerSessionOutcome.IsSuccess())
+		{
+			OutErrorMessage = FString::Printf(TEXT("Failed to accept player session for %s."), *Username);
+			return;
+		}
+	}
+		
+#endif
 }
 
 void ADS_LobbyGameMode::BeginPlay()
