@@ -4,8 +4,10 @@
 #include "Game/DS_LobbyGameMode.h"
 
 #include "DedicatedServers/DedicatedServers.h"
+#include "Game/DSGameState.h"
 #include "Game/DS_GameInstanceSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Lobby/LobbyState.h"
 #include "Player/DSPlayerController.h"
 
 ADS_LobbyGameMode::ADS_LobbyGameMode()
@@ -22,7 +24,6 @@ void ADS_LobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	Super::PostLogin(NewPlayer);
 	
 	CheckAndStartLobbyCountdown();
-	UE_LOG(LogTemp, Warning, TEXT("%hs for %s"), __FUNCTION__, *NewPlayer->GetName());
 }
 
 /* InitSeamlessTravelPlayer called when player seamless travel to this level */
@@ -31,7 +32,11 @@ void ADS_LobbyGameMode::InitSeamlessTravelPlayer(AController* NewController)
 	Super::InitSeamlessTravelPlayer(NewController);
 	
 	CheckAndStartLobbyCountdown();
-	UE_LOG(LogTemp, Warning, TEXT("%hs for %s"), __FUNCTION__, *NewController->GetName());
+
+	if (LobbyStatus != ELobbyStatus::SeamlessTravelling)
+	{
+		AddPlayerInfoToLobbyState(NewController);
+	}
 }
 
 void ADS_LobbyGameMode::CheckAndStartLobbyCountdown()
@@ -49,7 +54,11 @@ void ADS_LobbyGameMode::Logout(AController* Exiting)
 	
 	CheckAndStopLobbyCountdown();
 	RemovePlayerSession(Exiting);
-	UE_LOG(LogTemp, Warning, TEXT("%hs for %s"), __FUNCTION__, *Exiting->GetName());
+	
+	if (LobbyStatus != ELobbyStatus::SeamlessTravelling)
+	{
+		RemovePlayerInfoFromLobbyState(Exiting);
+	}
 }
 
 void ADS_LobbyGameMode::CheckAndStopLobbyCountdown()
@@ -70,7 +79,6 @@ void ADS_LobbyGameMode::PreLogin(const FString& Options, const FString& Address,
 
 	// ErrorMessage가 설정되면 이 로그인은 실패한다.
 	TryAcceptPlayerSession(PlayerSessionId, Username, ErrorMessage);
-	UE_LOG(LogTemp, Warning, TEXT("%hs - PlayerSessionId: %s, Username: %s"), __FUNCTION__, *PlayerSessionId, *Username);
 }
 
 void ADS_LobbyGameMode::TryAcceptPlayerSession(const FString& PlayerSessionId, const FString& Username, FString& OutErrorMessage)
@@ -127,6 +135,27 @@ void ADS_LobbyGameMode::TryAcceptPlayerSession(const FString& PlayerSessionId, c
 #endif
 }
 
+void ADS_LobbyGameMode::AddPlayerInfoToLobbyState(AController* Player) const
+{
+	const ADSPlayerController* DSPlayerController = Cast<ADSPlayerController>(Player);
+	const ADSGameState* DSGameState = GetGameState<ADSGameState>();
+	if (IsValid(DSPlayerController) && IsValid(DSGameState) && IsValid(DSGameState->LobbyState))
+	{
+		const FLobbyPlayerInfo PlayerInfo(DSPlayerController->Username);
+		DSGameState->LobbyState->AddPlayerInfo(PlayerInfo);
+	}
+}
+
+void ADS_LobbyGameMode::RemovePlayerInfoFromLobbyState(AController* Player) const
+{
+	const ADSPlayerController* DSPlayerController = Cast<ADSPlayerController>(Player);
+	const ADSGameState* DSGameState = GetGameState<ADSGameState>();
+	if (IsValid(DSPlayerController) && IsValid(DSGameState) && IsValid(DSGameState->LobbyState))
+	{
+		DSGameState->LobbyState->RemovePlayerInfo(DSPlayerController->Username);
+	}
+}
+
 // PreLogin()이 성공적으로 수행되고 플레이어의 NewPlayerController가 생성된 후에 호출된다. 
 FString ADS_LobbyGameMode::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal)
 {
@@ -141,7 +170,12 @@ FString ADS_LobbyGameMode::InitNewPlayer(APlayerController* NewPlayerController,
 		DSPlayerController->PlayerSessionId = PlayerSessionId;
 		DSPlayerController->Username = Username;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("%hs - PlayerSessionId: %s, Username: %s"), __FUNCTION__, *PlayerSessionId, *Username);
+	
+	if (LobbyStatus != ELobbyStatus::SeamlessTravelling)
+	{
+		AddPlayerInfoToLobbyState(NewPlayerController);
+	}
+	
 	return RetValue;
 }
 
