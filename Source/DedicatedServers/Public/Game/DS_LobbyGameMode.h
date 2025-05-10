@@ -24,6 +24,7 @@ public:
 	void CheckAndStartLobbyCountdown();
 	virtual void Logout(AController* Exiting) override;
 	void CheckAndStopLobbyCountdown();
+	virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
 
 protected:
 	virtual void BeginPlay() override;

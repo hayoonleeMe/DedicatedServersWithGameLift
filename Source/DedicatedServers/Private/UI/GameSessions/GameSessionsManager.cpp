@@ -86,9 +86,12 @@ void UGameSessionsManager::CreatePlayerSession_Response(FHttpRequestPtr Request,
 			OwningPlayerController->SetShowMouseCursor(false);
 		}
 
+		const FString Options = "?PlayerSessionId=" + PlayerSession.PlayerSessionId + "?Username=" + PlayerSession.PlayerId;
 		const FString IpAndPort = PlayerSession.IpAddress + TEXT(":") + FString::FromInt(PlayerSession.Port);
 		const FName Address(*IpAndPort);
-		UGameplayStatics::OpenLevel(this, Address);
+
+		// Options 파라미터를 사용하면 Travel 할 때 Command Line Argument 처럼 추가 데이터를 함께 전송할 수 있다.
+		UGameplayStatics::OpenLevel(this, Address, true, Options);
 	}
 }
 
@@ -111,7 +114,11 @@ void UGameSessionsManager::HandleGameSessionStatus(const FString& GameSessionId,
 	if (GameSessionStatus.Equals(TEXT("ACTIVE")))
 	{
 		BroadcastJoinGameSessionMessage.Broadcast(TEXT("Found active Game Session. Create a Player Session..."), false);
-		TryCreatePlayerSession(GetUniquePlayerId(), GameSessionId);
+
+		if (UDSLocalPlayerSubsystem* DSLocalPlayerSubsystem = GetDSLocalPlayerSubsystem())
+		{
+			TryCreatePlayerSession(DSLocalPlayerSubsystem->Username, GameSessionId);
+		}
 	}
 	else if (GameSessionStatus.Equals(TEXT("ACTIVATING")))
 	{

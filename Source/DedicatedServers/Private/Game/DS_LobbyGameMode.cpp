@@ -5,6 +5,7 @@
 
 #include "DedicatedServers/DedicatedServers.h"
 #include "Game/DS_GameInstanceSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 
 ADS_LobbyGameMode::ADS_LobbyGameMode()
 {
@@ -53,6 +54,14 @@ void ADS_LobbyGameMode::CheckAndStopLobbyCountdown()
 		LobbyStatus = ELobbyStatus::WaitingForPlayers;
 		StopCountdownTimer(LobbyCountdownTimer);
 	}
+}
+
+void ADS_LobbyGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
+{
+	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+
+	const FString PlayerSessionId = UGameplayStatics::ParseOption(Options, TEXT("PlayerSessionId"));
+	const FString Username = UGameplayStatics::ParseOption(Options, TEXT("Username"));
 }
 
 void ADS_LobbyGameMode::BeginPlay()
