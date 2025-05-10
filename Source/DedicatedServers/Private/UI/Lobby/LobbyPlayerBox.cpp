@@ -48,6 +48,7 @@ void ULobbyPlayerBox::OnLobbyStateInitialized(ALobbyState* LobbyState)
 
 	LobbyState->OnPlayerInfoAdded.AddDynamic(this, &ULobbyPlayerBox::CreateAndAddPlayerLabel);
 	LobbyState->OnPlayerInfoRemoved.AddDynamic(this, &ULobbyPlayerBox::OnPlayerRemoved);
+	UpdatePlayerInfo(LobbyState);
 }
 
 void ULobbyPlayerBox::CreateAndAddPlayerLabel(const FLobbyPlayerInfo& PlayerInfo)
