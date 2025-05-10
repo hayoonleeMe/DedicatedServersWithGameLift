@@ -52,6 +52,12 @@ void ULobbyPlayerBox::OnLobbyStateInitialized(ALobbyState* LobbyState)
 
 void ULobbyPlayerBox::CreateAndAddPlayerLabel(const FLobbyPlayerInfo& PlayerInfo)
 {
+	if (FindPlayerLabel(PlayerInfo.Username))
+	{
+		// 이미 존재하면 early return
+		return;
+	}
+	
 	if (UPlayerLabel* PlayerLabel = CreateWidget<UPlayerLabel>(this, PlayerLabelClass))
 	{
 		PlayerLabel->SetUsername(PlayerInfo.Username);
@@ -61,5 +67,20 @@ void ULobbyPlayerBox::CreateAndAddPlayerLabel(const FLobbyPlayerInfo& PlayerInfo
 
 void ULobbyPlayerBox::OnPlayerRemoved(const FLobbyPlayerInfo& PlayerInfo)
 {
-	
+	if (UPlayerLabel* PlayerLabel = FindPlayerLabel(PlayerInfo.Username))
+	{
+		ScrollBox_PlayerInfo->RemoveChild(PlayerLabel);
+	}
+}
+
+UPlayerLabel* ULobbyPlayerBox::FindPlayerLabel(const FString& Username)
+{
+	for (UWidget* Child : ScrollBox_PlayerInfo->GetAllChildren())
+	{
+		if (UPlayerLabel* PlayerLabel = Cast<UPlayerLabel>(Child); PlayerLabel->GetUsername() == Username)
+		{
+			return PlayerLabel;
+		}
+	}
+	return nullptr;
 }
